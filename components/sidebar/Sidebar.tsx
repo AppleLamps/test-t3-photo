@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, Wand2 } from "lucide-react";
 import { GenerationRequest } from "@/lib/types/models";
 import PromptInput from "./PromptInput";
 import ModelSelector from "./ModelSelector";
@@ -52,75 +52,142 @@ export default function Sidebar({
     return (
         <>
             {/* Mobile toggle button */}
-            <button
+            <motion.button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed top-4 left-4 z-50 lg:hidden glass p-2 rounded-lg"
+                className="fixed top-4 left-4 z-50 lg:hidden glass-card p-2.5 rounded-xl shadow-elevated"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
             >
-                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+                {isOpen ? (
+                    <X className="w-5 h-5 text-text-primary" />
+                ) : (
+                    <Menu className="w-5 h-5 text-text-primary" />
+                )}
+            </motion.button>
 
             {/* Sidebar */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.aside
-                        initial={{ x: -400 }}
-                        animate={{ x: 0 }}
-                        exit={{ x: -400 }}
-                        className="fixed lg:static inset-y-0 left-0 z-40 w-full sm:w-96 glass border-r border-border overflow-y-auto"
+                        initial={{ x: -420, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -420, opacity: 0 }}
+                        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                        className="fixed lg:static inset-y-0 left-0 z-40 w-full sm:w-[380px] glass-card border-r border-border/50 overflow-hidden flex flex-col"
                     >
-                        <div className="p-4 space-y-3">
-                            {/* Header */}
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                                    <Sparkles className="w-5 h-5 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-base font-bold text-text-primary">AI Image Studio</h1>
-                                    <p className="text-[9px] text-text-tertiary">Create stunning visuals</p>
-                                </div>
+                        {/* Sidebar Inner Glow */}
+                        <div className="absolute inset-0 pointer-events-none">
+                            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary/5 to-transparent" />
+                        </div>
+
+                        {/* Scrollable Content */}
+                        <div className="relative flex-1 overflow-y-auto px-5 py-6">
+                            <div className="space-y-6">
+                                {/* Header */}
+                                <motion.div
+                                    className="flex items-center gap-3"
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                >
+                                    <div className="relative">
+                                        <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
+                                            <Wand2 className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div className="absolute -inset-1 bg-gradient-primary rounded-xl opacity-20 blur-lg" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-lg font-semibold text-text-primary tracking-tight">
+                                            AI Image Studio
+                                        </h1>
+                                        <p className="text-xs text-text-tertiary">
+                                            Create stunning visuals with AI
+                                        </p>
+                                    </div>
+                                </motion.div>
+
+                                {/* Divider */}
+                                <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+                                {/* Prompt Input */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.15 }}
+                                >
+                                    <PromptInput value={prompt} onChange={onPromptChange} />
+                                </motion.div>
+
+                                {/* Model Selection */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                >
+                                    <ModelSelector selected={selectedModels} onChange={onModelsChange} />
+                                </motion.div>
+
+                                {/* Image Size */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.25 }}
+                                >
+                                    <ImageSizeSelector
+                                        selectedModels={selectedModels}
+                                        value={imageSize}
+                                        onChange={setImageSize}
+                                    />
+                                </motion.div>
+
+                                {/* Style Presets */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                >
+                                    <StylePresets onSelectPreset={(preset) => onPromptChange(prompt + " " + preset)} />
+                                </motion.div>
+
+                                {/* Advanced Settings */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.35 }}
+                                >
+                                    <AdvancedSettings
+                                        selectedModels={selectedModels}
+                                        values={advancedSettings}
+                                        onChange={setAdvancedSettings}
+                                    />
+                                </motion.div>
                             </div>
+                        </div>
 
-                            {/* Prompt Input */}
-                            <PromptInput value={prompt} onChange={onPromptChange} />
-
-                            {/* Model Selection */}
-                            <ModelSelector selected={selectedModels} onChange={onModelsChange} />
-
-                            {/* Image Size */}
-                            <ImageSizeSelector
-                                selectedModels={selectedModels}
-                                value={imageSize}
-                                onChange={setImageSize}
-                            />
-
-                            {/* Style Presets */}
-                            <StylePresets onSelectPreset={(preset) => onPromptChange(prompt + " " + preset)} />
-
-                            {/* Advanced Settings */}
-                            <AdvancedSettings
-                                selectedModels={selectedModels}
-                                values={advancedSettings}
-                                onChange={setAdvancedSettings}
-                            />
-
-                            {/* Generate Button */}
+                        {/* Generate Button - Fixed at bottom */}
+                        <motion.div
+                            className="relative p-5 border-t border-border/50 bg-gradient-to-t from-surface/80 to-transparent backdrop-blur-sm"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                        >
                             <Button
                                 onClick={handleGenerate}
                                 disabled={!prompt || selectedModels.length === 0}
                                 loading={isGenerating}
-                                size="md"
+                                size="lg"
                                 className="w-full"
                             >
-                                <Sparkles className="w-4 h-4" />
-                                Generate Image{selectedModels.length > 1 ? "s" : ""}
+                                <Sparkles className="w-5 h-5" />
+                                Generate{selectedModels.length > 1 ? ` with ${selectedModels.length} models` : ""}
                             </Button>
 
                             {selectedModels.length > 1 && (
-                                <p className="text-[9px] text-text-tertiary text-center">
-                                    Generating with {selectedModels.length} models
+                                <p className="text-2xs text-text-muted text-center mt-2.5">
+                                    Multi-model generation uses more API credits
                                 </p>
                             )}
-                        </div>
+                        </motion.div>
                     </motion.aside>
                 )}
             </AnimatePresence>
