@@ -1,6 +1,7 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { Check, Cpu, AlertCircle } from "lucide-react";
 import { MODELS } from "@/lib/constants/models";
 
 interface ModelSelectorProps {
@@ -18,52 +19,95 @@ export default function ModelSelector({ selected, onChange }: ModelSelectorProps
     };
 
     return (
-        <div className="space-y-2">
-            <label className="text-xs font-medium text-text-primary">
-                Model Selection
+        <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
+                <Cpu className="w-4 h-4 text-primary" />
+                AI Model
             </label>
 
-            <div className="space-y-1">
-                {MODELS.map((model) => {
+            <div className="space-y-2">
+                {MODELS.map((model, index) => {
                     const isSelected = selected.includes(model.id);
 
                     return (
-                        <button
+                        <motion.button
                             key={model.id}
                             onClick={() => toggleModel(model.id)}
-                            className={`w-full flex items-center gap-2 p-2 rounded-md border transition-all text-left ${isSelected
-                                    ? "border-primary bg-primary/10"
-                                    : "border-border glass hover:border-primary/50"
-                                }`}
+                            className={`group relative w-full flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 text-left ${
+                                isSelected
+                                    ? "border-primary/50 bg-primary/5"
+                                    : "border-border-subtle bg-surface-elevated/30 hover:border-border hover:bg-surface-elevated/50"
+                            }`}
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.99 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
                         >
+                            {/* Selection indicator glow */}
+                            {isSelected && (
+                                <motion.div
+                                    className="absolute -inset-px bg-gradient-primary rounded-xl opacity-10"
+                                    layoutId="model-selector-glow"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+
                             {/* Checkbox */}
-                            <div
-                                className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center ${isSelected ? "bg-primary border-primary" : "border-border"
-                                    }`}
+                            <motion.div
+                                className={`relative flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
+                                    isSelected
+                                        ? "bg-gradient-primary border-transparent"
+                                        : "border-border group-hover:border-text-muted"
+                                }`}
+                                animate={{ scale: isSelected ? [1, 1.2, 1] : 1 }}
+                                transition={{ duration: 0.2 }}
                             >
-                                {isSelected && <Check className="w-3 h-3 text-white" />}
-                            </div>
+                                {isSelected && (
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: "spring", bounce: 0.5 }}
+                                    >
+                                        <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                                    </motion.div>
+                                )}
+                            </motion.div>
 
                             {/* Model info */}
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-baseline gap-1.5">
-                                    <span className="text-xs font-medium text-text-primary truncate">
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-sm font-medium transition-colors ${
+                                        isSelected ? "text-text-primary" : "text-text-secondary group-hover:text-text-primary"
+                                    }`}>
                                         {model.name}
                                     </span>
-                                    <span className="text-[9px] text-text-tertiary flex-shrink-0">
-                                        {model.provider}
-                                    </span>
                                 </div>
+                                <span className="text-2xs text-text-muted">
+                                    {model.provider}
+                                </span>
                             </div>
-                        </button>
+
+                            {/* Status indicator */}
+                            <div className={`w-2 h-2 rounded-full ${
+                                isSelected ? "bg-success" : "bg-text-muted/30"
+                            }`} />
+                        </motion.button>
                     );
                 })}
             </div>
 
             {selected.length > 1 && (
-                <p className="text-[9px] text-yellow-500">
-                    ⚠️ Multi-model uses more API credits
-                </p>
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-start gap-2 p-2.5 rounded-lg bg-warning/10 border border-warning/20"
+                >
+                    <AlertCircle className="w-3.5 h-3.5 text-warning mt-0.5 flex-shrink-0" />
+                    <p className="text-2xs text-warning">
+                        Multi-model generation uses more API credits
+                    </p>
+                </motion.div>
             )}
         </div>
     );
